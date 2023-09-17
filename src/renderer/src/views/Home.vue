@@ -250,22 +250,38 @@ export default {
       music: ''
     }
 
-    const parseVideo = () => {
-      const isAvailable = Object.values(cookie).every((item) => item)
-      if (!isAvailable) {
-        return message.error('请设置cookie！')
-      }
-
-      // eslint-disable-next-line no-useless-escape
-      const URL_REGEXP =
-        // eslint-disable-next-line no-useless-escape
-        /((http|https):\/\/([\w-]+\.)+[\w\-]+(\/[\w\u4e00-\u9fa5\-\.\/?\@\%\!\&=\+\~\:\#\;\,]*)?)/gi
-
-      if (!URL_REGEXP.test(videoUrl.value)) {
-        message.warning('错误', '请填写正确作品链接', 'error')
+    const parseVideo = async () => {
+      if (!validate()) {
         return
       }
 
+      try {
+        // 向主进程请求数据
+        const id = await window.electron.ipcRenderer.invoke('fetch-data', videoUrl.value)
+        console.log(id, 'id')
+      } catch (error) {
+        console.log(error)
+      }
+
+      function validate() {
+        const isAvailable = Object.values(cookie).every((item) => item)
+        if (!isAvailable) {
+          message.error('请设置cookie！')
+          return false
+        }
+
+        // eslint-disable-next-line no-useless-escape
+        const URL_REGEXP =
+          // eslint-disable-next-line no-useless-escape
+          /((http|https):\/\/([\w-]+\.)+[\w\-]+(\/[\w\u4e00-\u9fa5\-\.\/?\@\%\!\&=\+\~\:\#\;\,]*)?)/gi
+
+        if (!URL_REGEXP.test(videoUrl.value)) {
+          message.warning('错误', '请填写正确作品链接', 'error')
+          return false
+        }
+
+        return true
+      }
       // 在这里添加解析视频的逻辑
     }
 

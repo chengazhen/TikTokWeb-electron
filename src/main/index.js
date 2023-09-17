@@ -1,8 +1,8 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-
+import { GetID } from './httpRequest'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -14,6 +14,16 @@ function createWindow() {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
+    }
+  })
+
+  // 处理渲染进程的请求并使用模块中的函数
+  ipcMain.handle('fetch-data', async (event, url) => {
+    try {
+      const id = await GetID(url)
+      return id
+    } catch (error) {
+      return null
     }
   })
 
