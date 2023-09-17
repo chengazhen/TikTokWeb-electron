@@ -1,11 +1,16 @@
 <script setup>
+import { NMessageProvider } from 'naive-ui'
 // import Versions from './components/Versions.vue'
 </script>
 
 <template>
-  <iframe src="https://douyin-31xm.onrender.com" frameborder="0"></iframe>
+  <n-message-provider>
+    <RouterView />
+  </n-message-provider>
 </template>
 
-<style lang="less">
-@import './assets/css/styles.less';
+<style lang="scss">
+html {
+  height: 100%;
+}
 </style>

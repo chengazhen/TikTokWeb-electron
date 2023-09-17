@@ -19,10 +19,14 @@
   "dependencies": {
     "@electron-toolkit/preload": "^2.0.0",
     "@electron-toolkit/utils": "^2.0.0",
+    "@vueuse/core": "^10.4.1",
     "file-saver": "^2.0.5",
+    "js-cookie": "^3.0.5",
     "jszip": "^3.10.1",
+    "naive-ui": "^2.34.4",
     "progress": "^2.0.3",
-    "sweetalert2": "^11.7.28"
+    "sweetalert2": "^11.7.28",
+    "vue-router": "^4.2.4"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.1",
@@ -36,6 +40,8 @@
     "eslint-plugin-vue": "^9.17.0",
     "less": "^4.2.0",
     "prettier": "^3.0.2",
+    "sass": "^1.67.0",
+    "unocss": "^0.55.7",
     "vite": "^4.4.9",
     "vue": "^3.3.4"
   }
