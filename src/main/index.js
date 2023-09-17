@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { GetID } from './httpRequest'
+import register from './register'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -17,15 +17,7 @@ function createWindow() {
     }
   })
 
-  // 处理渲染进程的请求并使用模块中的函数
-  ipcMain.handle('fetch-data', async (event, url) => {
-    try {
-      const id = await GetID(url)
-      return id
-    } catch (error) {
-      return null
-    }
-  })
+  register(ipcMain)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
