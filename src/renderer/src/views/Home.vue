@@ -258,7 +258,13 @@ export default {
       try {
         // 向主进程请求数据
         const id = await window.electron.ipcRenderer.invoke('fetch-data', videoUrl.value)
-        console.log(id, 'id')
+        if (id) {
+          const res = await window.electron.ipcRenderer.invoke(
+            'GetInfo',
+            id,
+            JSON.stringify(cookie)
+          )
+        }
       } catch (error) {
         console.log(error)
       }
