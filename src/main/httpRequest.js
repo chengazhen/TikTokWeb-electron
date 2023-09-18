@@ -47,7 +47,6 @@ export async function GetID(dyurl) {
  * @throws {Error} 在请求失败或解析数据时可能会抛出错误。
  */
 export function GetInfo(item_ids, dycookie) {
-  console.log(dycookie)
   dycookie = JSON.parse(dycookie)
   // 构造请求URL
   const params_url = `aweme_id=${item_ids}&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333`
@@ -63,7 +62,6 @@ export function GetInfo(item_ids, dycookie) {
       }
     })
     .then((response) => {
-      console.log(response.data)
       // 如果response.data为空或未定义
       if (!response.data) {
         return { work: false }

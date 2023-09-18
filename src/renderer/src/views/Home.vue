@@ -11,8 +11,16 @@
         <n-input v-model:value="videoUrl" type="text" placeholder="请输入作品链接" />
         <div class="input-group-btn">
           <div class="mt-2">
-            <NButton type="success" class="mr-1" @click="parseVideo"> 解析 </NButton>
-            <NButton type="warning" @click="showModal = true"> 设置Cookie </NButton>
+            <NButton type="success" class="mr-1" :loading="analysisLoading" @click="parseVideo">
+              解析
+            </NButton>
+            <NButton type="warning" class="mr-1" @click="showModal = true"> 设置Cookie </NButton>
+            <NButton type="success" class="mr-1" :disabled="!videoData.url" @click="handleSave">
+              下载视频
+            </NButton>
+            <NButton type="success" :disabled="!videoData.music" @click="handleSaveMusic">
+              下载音频
+            </NButton>
           </div>
         </div>
 
@@ -20,121 +28,58 @@
       </div>
 
       <!-- 作品详细-->
-      <div id="video_info" style="display: none">
-        <div class="card">
-          <div class="card-body">
-            <table style="overflow: auto">
-              <tr align="center">
-                <td>
-                  <div class="video_play">
-                    <video
-                      id="play"
-                      autoplay
-                      width="50%"
-                      controls="controls"
-                      preload="auto"
-                      type="video/mp4"
-                      webkit-playsinline="true"
-                      playsinline=""
-                      x5-video-player-type="h5"
-                      x5-video-player-fullscreen="portraint"
-                    >
-                      <source :src="videoData.url" type="video/mp4" />
-                    </video>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="row">
-                    <table align="center" style="width: 60%">
-                      <tr align="right">
-                        <td style="width: 40%"><span class="column">类型</span></td>
-                        <td>
-                          <span
-                            id="type"
-                            class="column"
-                            style="text-align: center; display: block"
-                            >{{ videoData.type }}</span
-                          >
-                        </td>
-                      </tr>
-                      <tr align="right">
-                        <td style="width: 40%"><span class="column">文案</span></td>
-                        <td>
-                          <span
-                            id="desc"
-                            class="column"
-                            style="text-align: center; display: block"
-                            >{{ videoData.desc }}</span
-                          >
-                        </td>
-                      </tr>
-                      <tr align="right">
-                        <td style="width: 40%"><span class="column">抖音ID</span></td>
-                        <td>
-                          <span
-                            id="unique_id"
-                            class="column"
-                            style="text-align: center; display: block"
-                            >{{ videoData.unique_id }}</span
-                          >
-                        </td>
-                      </tr>
-                      <tr align="right">
-                        <td style="width: 40%"><span class="column">视频ID</span></td>
-                        <td>
-                          <span
-                            id="video_id"
-                            class="column"
-                            style="text-align: center; display: block"
-                            >{{ videoData.video_id }}</span
-                          >
-                        </td>
-                      </tr>
-                      <tr align="right">
-                        <td style="width: 40%"><span class="column">主页</span></td>
-                        <td>
-                          <a
-                            id="userhome"
-                            class="column"
-                            target="_blank"
-                            :href="videoData.userhome"
-                            style="text-align: center; display: block"
-                            >{{ videoData.nickname }}</a
-                          >
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
-              <tr align="center">
-                <td align="center">
-                  <a
-                    id="downloadVIDEO"
-                    class="button"
-                    role="button"
-                    href="#"
-                    :download="videoData.desc + '.mp4'"
-                    rel="noreferrer"
-                    >下载视频</a
-                  >
-                  <a
-                    id="downloadMUSIC"
-                    class="button"
-                    role="button"
-                    href="#"
-                    :download="videoData.m_title + '.mp3'"
-                    rel="noreferrer"
-                  >
-                    {{ videoData.music === '' ? '该原声不可用' : '下载原声' }}
-                  </a>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
+      <div id="xgplayer"></div>
+      <div id="video_info">
+        <!--  -->
+        <n-table :single-line="false">
+          <table class="w-full">
+            <tr align="right">
+              <td style="width: 40%"><span class="column">类型</span></td>
+              <td>
+                <span id="type" class="column" style="text-align: center; display: block">{{
+                  videoData.type
+                }}</span>
+              </td>
+            </tr>
+            <tr align="right">
+              <td style="width: 40%"><span class="column">文案</span></td>
+              <td>
+                <span id="desc" class="column" style="text-align: center; display: block">{{
+                  videoData.desc
+                }}</span>
+              </td>
+            </tr>
+            <tr align="right">
+              <td style="width: 40%"><span class="column">抖音ID</span></td>
+              <td>
+                <span id="unique_id" class="column" style="text-align: center; display: block">{{
+                  videoData.unique_id
+                }}</span>
+              </td>
+            </tr>
+            <tr align="right">
+              <td style="width: 40%"><span class="column">视频ID</span></td>
+              <td>
+                <span id="video_id" class="column" style="text-align: center; display: block">{{
+                  videoData.video_id
+                }}</span>
+              </td>
+            </tr>
+            <tr align="right">
+              <td style="width: 40%"><span class="column">主页</span></td>
+              <td>
+                <a
+                  id="userhome"
+                  class="column"
+                  target="_blank"
+                  :href="videoData.userhome"
+                  style="text-align: center; display: block"
+                  >{{ videoData.nickname }}</a
+                >
+              </td>
+            </tr>
+          </table>
+        </n-table>
       </div>
 
       <!-- 页脚-->
@@ -188,14 +133,40 @@
 </template>
 
 <script>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import ScrollTop from '../components/ScrollTop.vue'
-import { NButton, NInput, NForm, NFormItem, NModal, useMessage } from 'naive-ui'
+import { NButton, NInput, NForm, NFormItem, NModal, useMessage, NTable } from 'naive-ui'
 import { setCookie, getCookie } from '@renderer/utils/token.js'
+import Player from 'xgplayer'
+import 'xgplayer/dist/index.min.css'
+import save from '../utils/save'
+import Nprogress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 export default {
-  components: { ScrollTop, NButton, NInput, NForm, NFormItem, NModal },
+  components: { ScrollTop, NButton, NInput, NForm, NFormItem, NModal, NTable },
   setup() {
+    let player
+    onMounted(() => {
+      player = new Player({
+        id: 'xgplayer',
+        url: 'https://lf3-static.bytednsdoc.com/obj/eden-cn/nupenuvpxnuvo/xgplayer_doc/xgplayer-demo.mp4',
+        playsinline: true,
+        poster:
+          'https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/byted-player-videos/1.0.0/poster.jpg',
+        plugins: [],
+        autoplay: false,
+        download: false
+      })
+    })
+
+    //
+
+    // eslint-disable-next-line no-useless-escape
+    const URL_REGEXP =
+      // eslint-disable-next-line no-useless-escape
+      /((http|https):\/\/([\w-]+\.)+[\w\-]+(\/[\w\u4e00-\u9fa5\-\.\/?\@\%\!\&=\+\~\:\#\;\,]*)?)/gi
+
     const message = useMessage()
 
     const showModal = ref(false)
@@ -237,8 +208,8 @@ export default {
         trigger: 'blur'
       }
     }
-    const videoData = {
-      type: ref(''),
+    const videoData = reactive({
+      type: '',
       images: [],
       url: '',
       desc: '',
@@ -248,25 +219,60 @@ export default {
       nickname: '',
       m_title: '',
       music: ''
+    })
+
+    /**
+     * @description: 下载视频文件
+     * @return {*}
+     */
+    function handleSave() {
+      Nprogress.start()
+      save(videoData.url, `${videoData.desc}.mp4`, (progress) => {
+        Nprogress.set(progress)
+      })
     }
 
-    const parseVideo = async () => {
+    /**
+     * @description: 下载音频文件
+     * @return {*}
+     */
+    function handleSaveMusic() {
+      Nprogress.start()
+      save(videoData.music, `${videoData.desc}.mp3`, (progress) => {
+        Nprogress.set(progress)
+      })
+    }
+
+    const analysisLoading = ref(false)
+    /**
+     * @description: 解析视频
+     * @return {*}
+     */
+    async function parseVideo() {
       if (!validate()) {
         return
       }
 
+      analysisLoading.value = true
       try {
         // 向主进程请求数据
-        const id = await window.electron.ipcRenderer.invoke('fetch-data', videoUrl.value)
+        const id = await window.electron.ipcRenderer.invoke(
+          'fetch-data',
+          videoUrl.value.match(URL_REGEXP)[0]
+        )
         if (id) {
           const res = await window.electron.ipcRenderer.invoke(
             'GetInfo',
             id,
             JSON.stringify(cookie)
           )
+          player.switchURL(res.url)
+          Object.assign(videoData, res)
         }
       } catch (error) {
         console.log(error)
+      } finally {
+        analysisLoading.value = false
       }
 
       function validate() {
@@ -276,11 +282,6 @@ export default {
           return false
         }
 
-        // eslint-disable-next-line no-useless-escape
-        const URL_REGEXP =
-          // eslint-disable-next-line no-useless-escape
-          /((http|https):\/\/([\w-]+\.)+[\w\-]+(\/[\w\u4e00-\u9fa5\-\.\/?\@\%\!\&=\+\~\:\#\;\,]*)?)/gi
-
         if (!URL_REGEXP.test(videoUrl.value)) {
           message.warning('错误', '请填写正确作品链接', 'error')
           return false
@@ -288,7 +289,6 @@ export default {
 
         return true
       }
-      // 在这里添加解析视频的逻辑
     }
 
     const getCookieByLocal = () => {
@@ -347,7 +347,10 @@ export default {
       setCookie,
       saveCookie,
       cleanCookie,
-      formRef
+      formRef,
+      analysisLoading,
+      handleSave,
+      handleSaveMusic
     }
   }
 }
