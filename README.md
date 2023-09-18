@@ -7,10 +7,6 @@
 
 [部署的 web 版](https://douyin-31xm.onrender.com/api?url=https://v.douyin.com/NKyY6Ch/)
 
-
- 
-实现思路来自 tiktokweb, 使用 electron-vite 进行重构, 不再需要使用 express 作为服务
-
 ## 技术栈
 electron-vite + vue + naive-ui
 
