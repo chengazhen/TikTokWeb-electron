@@ -134,7 +134,7 @@
     </n-form>
   </n-modal>
 
-  <n-modal v-model:show="qrcodeModalVisible" title="扫码登录" :closable="true" preset="dialog">
+  <n-modal v-model:show="qrcodeModalVisible" :title="loginStatus" :closable="true" preset="dialog">
     <div class="text-center">
       <qrcode-vue :value="qrcodeValue" level="H" :size="300" class="mx-auto" />
     </div>
@@ -169,6 +169,7 @@ export default {
         download: false
       })
     })
+    const message = useMessage()
 
     const qrcodeValue = ref('')
     const qrcodeModalVisible = ref(false)
@@ -187,18 +188,33 @@ export default {
       }
     }
 
+    let onLoginTimer = null
+    let loginStatus = ref('')
+    const messageMap = {
+      1: { message: '[  登录  ]:等待二维码扫描！\r' },
+      2: { message: '[  登录  ]:扫描二维码成功！\r' },
+      3: { message: '[  登录  ]:确认二维码登录！\r' },
+      4: { message: '[  登录  ]:访问频繁，请检查参数！\r' },
+      5: { message: '[  登录  ]:二维码过期，重新获取！\r' }
+    }
     /**
      * @description: 监听二维码扫描结果
      * @return {*}
      */
     async function onLogin() {
       try {
-        window.electron.ipcRenderer.on('loginRes', (event, data) => {
-          console.log(data)
-          // if (data.status === 200) {
-          //   console.log(data)
-          // }
-        })
+        const status = await window.electron.ipcRenderer.invoke('getLoginStatus')
+        if (status !== '3') {
+          loginStatus.value = messageMap[status].message
+          onLoginTimer = setTimeout(() => {
+            onLogin()
+          }, 3000)
+        } else {
+          qrcodeModalVisible.value = false
+          message.success('登录成功')
+          clearTimeout(onLoginTimer)
+          onLoginTimer = null
+        }
       } catch (error) {
         console.log(error)
       }
@@ -210,8 +226,6 @@ export default {
     const URL_REGEXP =
       // eslint-disable-next-line no-useless-escape
       /((http|https):\/\/([\w-]+\.)+[\w\-]+(\/[\w\u4e00-\u9fa5\-\.\/?\@\%\!\&=\+\~\:\#\;\,]*)?)/gi
-
-    const message = useMessage()
 
     const showModal = ref(false)
     const videoUrl = ref('https://v.douyin.com/NKyY6Ch/')
@@ -397,7 +411,8 @@ export default {
       handleSaveMusic,
       getQrocde,
       qrcodeValue,
-      qrcodeModalVisible
+      qrcodeModalVisible,
+      loginStatus
     }
   }
 }
