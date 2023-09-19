@@ -29,6 +29,7 @@
     "naive-ui": "^2.34.4",
     "nprogress": "^0.2.0",
     "progress": "^2.0.3",
+    "qrcode.vue": "^3.4.1",
     "sweetalert2": "^11.7.28",
     "vue-router": "^4.2.4",
     "xgplayer": "^3.0.9"
