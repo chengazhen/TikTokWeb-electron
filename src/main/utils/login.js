@@ -1,8 +1,11 @@
-import { getFp } from './cookie'
+import { getFp, splitCookies } from './cookie'
 import XB from './x-bogus'
 import URLS from './urls'
 import { generateTtwid } from '../httpRequest'
 import axios from 'axios'
+// import { getCookie, setCookie } from './storage'
+// import { ipcMain } from 'electron'
+
 export default class Login {
   constructor() {
     // 登录日志消息映射
@@ -22,10 +25,7 @@ export default class Login {
       Referer: 'https://www.douyin.com/'
     }
 
-    this.initHeaders().then(() => {
-      // 初始化默认调用登录二维码
-      this.getQrCode()
-    })
+    this.initHeaders()
   }
 
   async initHeaders() {
@@ -46,9 +46,10 @@ export default class Login {
       })
 
       const { qrcode_index_url, token } = data.data
+
+      // 开始检查二维码扫码状态
+      this.checkQrConnect(token)
       return qrcode_index_url
-      // this.showQrCode(qrcode_index_url)
-      // this.checkQrConnect(token)
     } catch (e) {
       const errorMessage = `网络异常: 获取二维码失败。 状态码: ${e}`
       console.error(errorMessage)
@@ -56,15 +57,34 @@ export default class Login {
   }
 
   checkQrConnect(token) {
+    let timer = 0
+    let maxRequest = 10
+    let requestCount = 0
     try {
       const params = XB.getXBogus(
         `token=${token}&service=https%3A%2F%2Fwww.douyin.com&need_logo=false&need_short_url=true&device_platform=web_app&aid=6383&account_sdk_source=sso&sdk_version=2.2.5&language=zh&verifyFp=${this.verifyFp}&fp=${this.verifyFp}`
       )
-      const domain = URLS.SSO_LOGIN_CHECK_QR
 
-      while (true) {
-        const response = Util.requests.get(`${domain}${params[0]}`, { headers: this.loginHeaders })
-        const data = response.json().data
+      const check = async () => {
+        // 每三秒检查一次
+        timer = setTimeout(() => {
+          if (timer) {
+            check()
+          }
+        }, 5000)
+
+        if (requestCount > maxRequest) {
+          requestCount = 0
+          clearTimeout(timer)
+          timer = 0
+          return
+        }
+
+        const { headers, data: _data } = await axios.get(`${URLS.SSO_LOGIN_CHECK_QR}${params[0]}`, {
+          headers: this.loginHeaders
+        })
+
+        const data = _data.data
         const status = data.status
 
         switch (status) {
@@ -75,10 +95,13 @@ export default class Login {
             this.logAndPrint('2')
             break
           case '3':
-            this.logAndPrint('3')
-            const redirectUrl = data.redirect_url
-            const loginCookies = Util.Cookies().splitCookies(response.headers['set-cookie'] || '')
-            return this.loginRedirect(redirectUrl, loginCookies)
+            {
+              this.logAndPrint('3')
+              clearTimeout(timer)
+              timer = 0
+              this.loginRedirect(data.redirect_url, splitCookies(headers['set-cookie'] || ''))
+            }
+            break
           case '4':
             this.logAndPrint('4')
             break
@@ -87,57 +110,38 @@ export default class Login {
             this.getQrCode()
             break
         }
-        Util.time.sleep(3)
+        requestCount++
       }
+
+      check()
     } catch (e) {
-      if (response) {
-        const errorMessage = `网络异常: 检查二维码扫码状态失败。 状态码: ${response.status_code}, 响应体: ${response.text}, 异常: ${e}`
-        console.error(errorMessage)
-        throw new Error(errorMessage)
-      } else {
-        const errorMessage = `网络异常: 获取二维码失败。 无法连接到服务器。 异常: ${e}`
-        console.error(errorMessage)
-        throw new Error(errorMessage)
-      }
+      clearTimeout(timer)
+      timer = 0
+      const errorMessage = `网络异常: 检查二维码扫码状态失败。 状态码: ${e}`
+      console.error(errorMessage)
     }
   }
 
-  loginRedirect(redirectUrl, cookie) {
+  async loginRedirect(redirectUrl, cookie) {
     try {
       this.loginHeaders.Cookie = cookie
-      const loginResponse = Util.requests.get(redirectUrl, { headers: this.loginHeaders })
-
-      if (loginResponse.history[0].status_code === 302) {
-        this.loginHeaders.Cookie = Util.Cookies().splitCookies(
-          loginResponse.history[1].headers['set-cookie'] || ''
-        )
+      const { status, headers } = await axios.get(redirectUrl, { headers: this.loginHeaders })
+      if (status === 200) {
+        this.loginHeaders.Cookie = splitCookies(headers['set-cookie'])
         this.loginHeaders['User-Agent'] =
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
-        // 写入配置文件
-        Util.Config().save(this.loginHeaders.Cookie)
-        console.log('[  登录  ]:重定向登录成功\r')
-        return true
-      } else {
-        console.log('[  登录  ]:重定向登录失败\r')
-        if (loginResponse) {
-          const errorMessage = `网络异常: 重定向登录失败。 状态码: ${loginResponse.status_code}, 响应体: ${loginResponse.text}`
-          console.warn(errorMessage)
-        } else {
-          console.warn('网络异常: 重定向登录失败。 无法连接到服务器。')
-        }
-        return false
+        return
       }
+      throw new Error('登录失败')
     } catch (e) {
       console.error(e)
-      return false
     }
   }
 
   logAndPrint(status) {
     const data = this.statusMapping[status] || {}
     const message = data.message || ''
-    const logFunc = data.log || console.log
     console.log(message)
-    logFunc(message)
+    // logFunc(message)
   }
 }

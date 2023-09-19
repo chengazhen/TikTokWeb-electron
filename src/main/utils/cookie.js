@@ -70,12 +70,8 @@ export function base36Encode(number) {
   return base36.reverse().join('')
 }
 
-export function splitCookies(cookieStr) {
-  if (typeof cookieStr !== 'string') {
-    throw new TypeError('cookieStr must be a string')
-  }
-
-  const cookiesList = cookieStr.split(', ').filter((cookie) => /[a-zA-Z]/.test(cookie))
+export function splitCookies(rawCookies) {
+  const cookiesList = rawCookies.filter((cookie) => /[a-zA-Z]/.test(cookie))
   const cookies = cookiesList.map((cookie) => cookie.split(';')[0])
   return cookies.join(';')
 }
