@@ -17,7 +17,7 @@
             <NButton type="warning" class="mr-1" @click="showModal = true">
               手动设置Cookie
             </NButton>
-            <!-- <NButton type="warning" class="mr-1" @click="getQrocde"> 扫码设置Cookie </NButton> -->
+            <NButton type="warning" class="mr-1" @click="getQrocde"> 扫码设置Cookie </NButton>
             <NButton type="success" class="mr-1" :disabled="!videoData.url" @click="handleSave">
               下载视频
             </NButton>
@@ -181,6 +181,24 @@ export default {
         qrcodeModalVisible.value = true
         const url = await window.electron.ipcRenderer.invoke('login')
         qrcodeValue.value = url
+        onLogin()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    /**
+     * @description: 监听二维码扫描结果
+     * @return {*}
+     */
+    async function onLogin() {
+      try {
+        window.electron.ipcRenderer.on('loginRes', (event, data) => {
+          console.log(data)
+          // if (data.status === 200) {
+          //   console.log(data)
+          // }
+        })
       } catch (error) {
         console.log(error)
       }
