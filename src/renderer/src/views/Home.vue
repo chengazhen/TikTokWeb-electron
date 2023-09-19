@@ -14,7 +14,10 @@
             <NButton type="success" class="mr-1" :loading="analysisLoading" @click="parseVideo">
               解析
             </NButton>
-            <NButton type="warning" class="mr-1" @click="showModal = true"> 设置Cookie </NButton>
+            <NButton type="warning" class="mr-1" @click="showModal = true">
+              手动设置Cookie
+            </NButton>
+            <!-- <NButton type="warning" class="mr-1" @click="getQrocde"> 扫码设置Cookie </NButton> -->
             <NButton type="success" class="mr-1" :disabled="!videoData.url" @click="handleSave">
               下载视频
             </NButton>
@@ -130,6 +133,12 @@
       </n-form-item>
     </n-form>
   </n-modal>
+
+  <n-modal v-model:show="qrcodeModalVisible" title="扫码登录" :closable="true" preset="dialog">
+    <div class="text-center">
+      <qrcode-vue :value="qrcodeValue" level="H" :size="300" class="mx-auto" />
+    </div>
+  </n-modal>
 </template>
 
 <script>
@@ -142,9 +151,10 @@ import 'xgplayer/dist/index.min.css'
 import save from '../utils/save'
 import Nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
+import QrcodeVue from 'qrcode.vue'
 
 export default {
-  components: { ScrollTop, NButton, NInput, NForm, NFormItem, NModal, NTable },
+  components: { ScrollTop, NButton, NInput, NForm, NFormItem, NModal, NTable, QrcodeVue },
   setup() {
     let player
     onMounted(() => {
@@ -159,6 +169,22 @@ export default {
         download: false
       })
     })
+
+    const qrcodeValue = ref('')
+    const qrcodeModalVisible = ref(false)
+    /**
+     * @description: 获取二维码
+     * @return {*}
+     */
+    async function getQrocde() {
+      try {
+        qrcodeModalVisible.value = true
+        const url = await window.electron.ipcRenderer.invoke('login')
+        qrcodeValue.value = url
+      } catch (error) {
+        console.log(error)
+      }
+    }
 
     //
 
@@ -350,7 +376,10 @@ export default {
       formRef,
       analysisLoading,
       handleSave,
-      handleSaveMusic
+      handleSaveMusic,
+      getQrocde,
+      qrcodeValue,
+      qrcodeModalVisible
     }
   }
 }

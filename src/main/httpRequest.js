@@ -101,3 +101,35 @@ export function GetInfo(item_ids, dycookie) {
       }
     })
 }
+
+/**
+ * @description: 获取ttwid
+ * @return {*}
+ */
+export function generateTtwid() {
+  return axios
+    .post('https://ttwid.bytedance.com/ttwid/union/register/', {
+      region: 'cn',
+      aid: 1768,
+      needFid: false,
+      service: 'www.ixigua.com',
+      migrate_info: {
+        ticket: '',
+        source: 'node'
+      },
+      cbUrlProtocol: 'https',
+      union: true
+    })
+    .then((response) => {
+      const cookieHeaders = response.headers['set-cookie'] || []
+      let ttwid = ''
+      for (const cookieHeader of cookieHeaders) {
+        const matches = cookieHeader.match(/ttwid=([^;]+)/)
+        if (matches && matches.length > 1) {
+          ttwid = matches[1]
+          break
+        }
+      }
+      return ttwid
+    })
+}
