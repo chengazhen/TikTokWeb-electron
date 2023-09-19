@@ -3,6 +3,8 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import register from './register'
+
+//
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -19,7 +21,7 @@ function createWindow() {
   })
 
   register(ipcMain)
-
+  // console.log(storage.getDefaultDataPath())
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })

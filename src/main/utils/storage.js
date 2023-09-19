@@ -1,10 +1,11 @@
-import storage from 'electron-json-storage'
-
+import Store from 'electron-store'
+const store = new Store()
+console.log(store.path)
 const KEY = 'cookie'
 export function getCookie() {
-  return storage.get(KEY)
+  return store.get(KEY)
 }
 
 export function setCookie(cookie) {
-  return storage.set(KEY, cookie)
+  return store.set(KEY, cookie)
 }

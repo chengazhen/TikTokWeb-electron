@@ -1,4 +1,4 @@
-import getXB from './utils/x-bogus'
+import getXB from './utils/x-bogus1'
 import axios from 'axios'
 // const axios = require('axios')
 
