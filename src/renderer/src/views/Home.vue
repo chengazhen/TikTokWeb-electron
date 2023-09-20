@@ -203,13 +203,15 @@ export default {
      */
     async function onLogin() {
       try {
-        const status = await window.electron.ipcRenderer.invoke('getLoginStatus')
+        const { status, data } = await window.electron.ipcRenderer.invoke('getLoginStatus')
         if (status !== '3') {
           loginStatus.value = messageMap[status].message
           onLoginTimer = setTimeout(() => {
             onLogin()
           }, 3000)
         } else {
+          setCookie(data)
+          Object.assign(cookie, data)
           qrcodeModalVisible.value = false
           message.success('登录成功')
           clearTimeout(onLoginTimer)

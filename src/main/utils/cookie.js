@@ -75,3 +75,16 @@ export function splitCookies(rawCookies) {
   const cookies = cookiesList.map((cookie) => cookie.split(';')[0])
   return cookies.join(';')
 }
+
+export function getCookie(cookieHeaders, key) {
+  const rege = new RegExp(`${key}=([^;]+)`)
+  let ttwid = ''
+  for (const cookieHeader of cookieHeaders) {
+    const matches = cookieHeader.match(rege)
+    if (matches && matches.length > 1) {
+      ttwid = matches[1]
+      break
+    }
+  }
+  return ttwid
+}
