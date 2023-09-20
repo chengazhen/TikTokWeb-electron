@@ -5,7 +5,7 @@ import { generateTtwid } from '../httpRequest'
 import axios from 'axios'
 import { setCookie } from './storage'
 // import { ipcMain } from 'electron'
-
+import { getCookie } from './cookie'
 export default class Login {
   constructor() {
     this.verifyFp = ''
@@ -17,6 +17,7 @@ export default class Login {
     }
 
     this.checkQrParams = ''
+    this.ttwid = ''
 
     this.initHeaders()
   }
@@ -24,6 +25,7 @@ export default class Login {
   async initHeaders() {
     const ttwid = await generateTtwid()
     if (ttwid) {
+      this.ttwid = ttwid
       this.loginHeaders.Cookie = `ttwid=${ttwid}`
     }
   }
@@ -37,11 +39,14 @@ export default class Login {
       const { data } = await axios.get(`${URLS.SSO_LOGIN_GET_QR}${params[0]}`, {
         headers: this.loginHeaders
       })
+
       const { qrcode_index_url, token } = data.data
       const _params = await XB.getXBogus(
         `token=${token}&service=https%3A%2F%2Fwww.douyin.com&need_logo=false&need_short_url=true&device_platform=web_app&aid=6383&account_sdk_source=sso&sdk_version=2.2.5&language=zh&verifyFp=${this.verifyFp}&fp=${this.verifyFp}`
       )
+
       this.checkQrParams = _params[0]
+
       return qrcode_index_url
     } catch (e) {
       const errorMessage = `网络异常: 获取二维码失败。 状态码: ${e}`
@@ -68,16 +73,28 @@ export default class Login {
       })
 
       if (status === '3') {
-        const res = await this.loginRedirect(
-          redirect_url,
-          splitCookies(headers['set-cookie'] || '')
-        )
-        if (res) {
-          return '3'
+        return {
+          status,
+          data: {
+            odin_tt: getCookie(headers['set-cookie'], 'odin_tt'),
+            passport_csrf_token: getCookie(headers['set-cookie'], 'passport_csrf_token'),
+            msToken: getCookie(headers['set-cookie'], 'passport_csrf_token'),
+            ttwid: this.ttwid
+          }
         }
+        // setCookie({
+        //   odin_tt: getCookie(headers['set-cookie'], 'odin_tt'),
+        //   passport_csrf_token: getCookie(headers['set-cookie'], 'passport_csrf_token'),
+        //   msToken: getCookie(headers['set-cookie'], 'passport_csrf_token'),
+        //   ttwid: this.ttwid
+        // })
+        // return this.loginRedirect(redirect_url, splitCookies(headers['set-cookie'] || ''))
       }
 
-      return status
+      return {
+        status,
+        data: null
+      }
     } catch (e) {
       return Promise.reject(e)
     }
@@ -89,10 +106,11 @@ export default class Login {
       const { status, headers } = await axios.get(redirectUrl, { headers: this.loginHeaders })
       if (status === 200) {
         this.loginHeaders.Cookie = splitCookies(headers['set-cookie'])
+        console.log(headers['set-cookie'])
         this.loginHeaders['User-Agent'] =
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
         setCookie(this.loginHeaders.Cookie)
-        return true
+        return '3'
       }
       throw new Error('登录失败')
     } catch (e) {
