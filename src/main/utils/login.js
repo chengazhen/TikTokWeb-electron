@@ -95,7 +95,7 @@ export default class Login {
         //   msToken: getCookie(headers['set-cookie'], 'passport_csrf_token'),
         //   ttwid: this.ttwid
         // })
-        return await this.loginRedirect(redirect_url, splitCookies(headers['set-cookie'] || ''))
+        return this.loginRedirect(redirect_url, splitCookies(headers['set-cookie'] || ''))
       }
 
       return {
@@ -114,7 +114,7 @@ export default class Login {
       if (status === 200) {
         // setCookie(this.loginHeaders.Cookie)
         return {
-          status: 3,
+          status: '3',
           data: splitCookies(headers['set-cookie'])
         }
       }
