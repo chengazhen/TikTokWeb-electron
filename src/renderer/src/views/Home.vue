@@ -320,7 +320,7 @@ export default {
      */
     async function parseVideo() {
       const scanToken = jsCookie.get('scan_token')
-      if (!validate() && !scanToken) {
+      if (!scanToken && !validate()) {
         return
       }
 
@@ -331,6 +331,7 @@ export default {
           'fetch-data',
           videoUrl.value.match(URL_REGEXP)[0]
         )
+
         if (id) {
           const res = await window.electron.ipcRenderer.invoke(
             'GetInfo',
