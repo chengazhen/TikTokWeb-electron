@@ -19,14 +19,19 @@ const USER_AGENT_MOBILE =
  * @throws {Error} 在请求失败或解析数据时可能会抛出错误。
  */
 export function GetInfo(item_ids, dycookie, isScanCode = false) {
-  dycookie = JSON.parse(dycookie)
   // 构造请求URL
   const params_url = `aweme_id=${item_ids}&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333`
   const xb = getXB(params_url)
   const url = `${DETAIL_URL_BASE}${params_url}&X-Bogus=${xb}`
-  const cookie = isScanCode
-    ? dycookie
-    : `sessionid_ss=${dycookie['sessionid_ss']};ttwid=${dycookie['ttwid']};passport_csrf_token=${dycookie['passport_csrf_token']};msToken=${dycookie['msToken']};`
+
+  let cookie = null
+  if (isScanCode) {
+    cookie = dycookie
+  } else {
+    dycookie = JSON.parse(dycookie)
+    cookie = `sessionid_ss=${dycookie['sessionid_ss']};ttwid=${dycookie['ttwid']};passport_csrf_token=${dycookie['passport_csrf_token']};msToken=${dycookie['msToken']};`
+  }
+
   return axios
     .get(url, {
       headers: {
