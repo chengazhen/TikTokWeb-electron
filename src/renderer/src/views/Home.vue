@@ -152,6 +152,7 @@ import save from '../utils/save'
 import Nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 import QrcodeVue from 'qrcode.vue'
+import jsCookie from 'js-cookie'
 
 export default {
   components: { ScrollTop, NButton, NInput, NForm, NFormItem, NModal, NTable, QrcodeVue },
@@ -169,8 +170,8 @@ export default {
         download: false
       })
     })
-    const message = useMessage()
 
+    const message = useMessage()
     const qrcodeValue = ref('')
     const qrcodeModalVisible = ref(false)
     /**
@@ -204,14 +205,23 @@ export default {
     async function onLogin() {
       try {
         const { status, data } = await window.electron.ipcRenderer.invoke('getLoginStatus')
+
+        if (status === -1) {
+          clearTimeout(onLoginTimer)
+          onLoginTimer = null
+          message.error('登录失败！当前网络可能被风控')
+          return
+        }
+
         if (status !== '3') {
           loginStatus.value = messageMap[status].message
           onLoginTimer = setTimeout(() => {
             onLogin()
           }, 3000)
         } else {
-          setCookie(data)
-          Object.assign(cookie, data)
+          jsCookie.set('scan_token', data, {
+            expires: 7
+          })
           qrcodeModalVisible.value = false
           message.success('登录成功')
           clearTimeout(onLoginTimer)
@@ -309,7 +319,8 @@ export default {
      * @return {*}
      */
     async function parseVideo() {
-      if (!validate()) {
+      const scanToken = jsCookie.get('scan_token')
+      if (!validate() && !scanToken) {
         return
       }
 
@@ -324,7 +335,8 @@ export default {
           const res = await window.electron.ipcRenderer.invoke(
             'GetInfo',
             id,
-            JSON.stringify(cookie)
+            jsCookie.get('scan_token') ? jsCookie.get('scan_token') : getCookie(),
+            Boolean(scanToken)
           )
           player.switchURL(res.url)
           Object.assign(videoData, res)

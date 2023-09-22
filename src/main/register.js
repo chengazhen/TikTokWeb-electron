@@ -1,4 +1,5 @@
-import { GetID, GetInfo } from './httpRequest'
+import { GetID } from './httpRequest'
+import { GetInfo } from './download'
 import Login from './utils/login'
 
 const login = new Login()
@@ -9,8 +10,8 @@ export default (ipcMain) => {
   })
 
   // 获取作品ID
-  ipcMain.handle('GetInfo', async (event, id, dycookie) => {
-    return GetInfo(id, dycookie)
+  ipcMain.handle('GetInfo', async (event, id, dycookie, isScanCode) => {
+    return GetInfo(id, dycookie, isScanCode)
   })
 
   ipcMain.handle('login', async () => {

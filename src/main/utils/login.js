@@ -3,9 +3,9 @@ import XB from './x-bogus'
 import URLS from './urls'
 import { generateTtwid } from '../httpRequest'
 import axios from 'axios'
-import { setCookie } from './storage'
-// import { ipcMain } from 'electron'
-import { getCookie } from './cookie'
+// import { setCookie } from './storage'
+// // import { ipcMain } from 'electron'
+// import { getCookie } from './cookie'
 export default class Login {
   constructor() {
     this.verifyFp = ''
@@ -63,32 +63,39 @@ export default class Login {
       //   `token=${token}&service=https%3A%2F%2Fwww.douyin.com&need_logo=false&need_short_url=true&device_platform=web_app&aid=6383&account_sdk_source=sso&sdk_version=2.2.5&language=zh&verifyFp=${this.verifyFp}&fp=${this.verifyFp}`
       // )
 
-      const {
-        headers,
-        data: {
-          data: { status, redirect_url }
-        }
-      } = await axios.get(`${URLS.SSO_LOGIN_CHECK_QR}${this.checkQrParams}`, {
+      const { headers, data } = await axios.get(`${URLS.SSO_LOGIN_CHECK_QR}${this.checkQrParams}`, {
         headers: this.loginHeaders
       })
 
-      if (status === '3') {
+      // 兼容风控
+      if (data.error_code === 2046) {
         return {
-          status,
-          data: {
-            odin_tt: getCookie(headers['set-cookie'], 'odin_tt'),
-            passport_csrf_token: getCookie(headers['set-cookie'], 'passport_csrf_token'),
-            msToken: getCookie(headers['set-cookie'], 'passport_csrf_token'),
-            ttwid: this.ttwid
-          }
+          status: -1,
+          error_code: data.error_code
         }
+      }
+
+      console.log(data.data)
+
+      const { redirect_url, status } = data.data
+
+      if (status === '3') {
+        // return {
+        //   status,
+        //   data: {
+        //     odin_tt: getCookie(headers['set-cookie'], 'odin_tt'),
+        //     passport_csrf_token: getCookie(headers['set-cookie'], 'passport_csrf_token'),
+        //     msToken: getCookie(headers['set-cookie'], 'passport_csrf_token'),
+        //     ttwid: this.ttwid
+        //   }
+        // }
         // setCookie({
         //   odin_tt: getCookie(headers['set-cookie'], 'odin_tt'),
         //   passport_csrf_token: getCookie(headers['set-cookie'], 'passport_csrf_token'),
         //   msToken: getCookie(headers['set-cookie'], 'passport_csrf_token'),
         //   ttwid: this.ttwid
         // })
-        // return this.loginRedirect(redirect_url, splitCookies(headers['set-cookie'] || ''))
+        return await this.loginRedirect(redirect_url, splitCookies(headers['set-cookie'] || ''))
       }
 
       return {
@@ -105,12 +112,11 @@ export default class Login {
       this.loginHeaders.Cookie = cookie
       const { status, headers } = await axios.get(redirectUrl, { headers: this.loginHeaders })
       if (status === 200) {
-        this.loginHeaders.Cookie = splitCookies(headers['set-cookie'])
-        console.log(headers['set-cookie'])
-        this.loginHeaders['User-Agent'] =
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'
-        setCookie(this.loginHeaders.Cookie)
-        return '3'
+        // setCookie(this.loginHeaders.Cookie)
+        return {
+          status: 3,
+          data: splitCookies(headers['set-cookie'])
+        }
       }
       throw new Error('登录失败')
     } catch (e) {
