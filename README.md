@@ -1,5 +1,7 @@
 ## tiktokweb-electron
 
+抖音去水印视频下载客户端，支持windows、mac; 支持扫登录
+
 [web 版](https://douyin-31xm.onrender.com/api?url=https://v.douyin.com/NKyY6Ch/)
 
 基于 electron-vite 和 tiktokweb 开发的 Electron 应用。
