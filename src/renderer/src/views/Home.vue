@@ -217,7 +217,7 @@ export default {
           loginStatus.value = messageMap[status].message
           onLoginTimer = setTimeout(() => {
             onLogin()
-          }, 3000)
+          }, 1000)
         } else {
           jsCookie.set('scan_token', data, {
             expires: 7

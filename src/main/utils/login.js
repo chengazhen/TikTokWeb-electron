@@ -68,33 +68,16 @@ export default class Login {
       })
 
       // 兼容风控
-      if (data.error_code === 2046) {
+      if (data.error_code) {
         return {
           status: -1,
           error_code: data.error_code
         }
       }
 
-      console.log(data.data)
-
       const { redirect_url, status } = data.data
 
       if (status === '3') {
-        // return {
-        //   status,
-        //   data: {
-        //     odin_tt: getCookie(headers['set-cookie'], 'odin_tt'),
-        //     passport_csrf_token: getCookie(headers['set-cookie'], 'passport_csrf_token'),
-        //     msToken: getCookie(headers['set-cookie'], 'passport_csrf_token'),
-        //     ttwid: this.ttwid
-        //   }
-        // }
-        // setCookie({
-        //   odin_tt: getCookie(headers['set-cookie'], 'odin_tt'),
-        //   passport_csrf_token: getCookie(headers['set-cookie'], 'passport_csrf_token'),
-        //   msToken: getCookie(headers['set-cookie'], 'passport_csrf_token'),
-        //   ttwid: this.ttwid
-        // })
         return this.loginRedirect(redirect_url, splitCookies(headers['set-cookie'] || ''))
       }
 
