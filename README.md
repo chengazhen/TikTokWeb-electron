@@ -1,6 +1,8 @@
 ## tiktokweb-electron
 
-抖音去水印视频下载客户端，支持windows、mac; 支持扫登录 **扫码登录我没有打包, 可以自行打包; release里面的需要手动填写cookie**
+抖音去水印视频下载客户端，支持windows、mac; 支持扫登录 ‘
+
+**扫码登录我没有打包, 可以自行打包; release里面的需要手动填写cookie；扫码登录的功能不太稳定**
 
 [web 版](https://douyin-31xm.onrender.com/api?url=https://v.douyin.com/NKyY6Ch/)
 
