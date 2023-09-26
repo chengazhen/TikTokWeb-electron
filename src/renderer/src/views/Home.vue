@@ -158,7 +158,9 @@ import save from '../utils/save'
 import Nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 import QrcodeVue from 'qrcode.vue'
-import jsCookie from 'js-cookie'
+import local from '../utils/local.js'
+
+const jsCookie = local.local
 
 export default {
   components: { ScrollTop, NButton, NInput, NForm, NFormItem, NModal, NTable, QrcodeVue },
@@ -212,7 +214,7 @@ export default {
       try {
         const { status, data } = await window.electron.ipcRenderer.invoke('getLoginStatus')
 
-        // console.log(status, data)
+        console.log(status, data)
         if (status === -1) {
           clearTimeout(onLoginTimer)
           onLoginTimer = null
@@ -226,9 +228,7 @@ export default {
             onLogin()
           }, 1000)
         } else {
-          jsCookie.set('scan_token', data, {
-            expires: 7
-          })
+          jsCookie.set('scan_token', data, 604800000)
           qrcodeModalVisible.value = false
           message.success('登录成功')
           clearTimeout(onLoginTimer)
@@ -336,6 +336,7 @@ export default {
      */
     async function parseVideo() {
       const scanToken = jsCookie.get('scan_token')
+      console.log(scanToken)
       if (!scanToken && !validate()) {
         return
       }
