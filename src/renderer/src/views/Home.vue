@@ -134,7 +134,13 @@
     </n-form>
   </n-modal>
 
-  <n-modal v-model:show="qrcodeModalVisible" :title="loginStatus" :closable="true" preset="dialog">
+  <n-modal
+    v-model:show="qrcodeModalVisible"
+    :on-close="stopTime"
+    :title="loginStatus"
+    :closable="true"
+    preset="dialog"
+  >
     <div class="text-center">
       <qrcode-vue :value="qrcodeValue" level="H" :size="300" class="mx-auto" />
     </div>
@@ -206,6 +212,7 @@ export default {
       try {
         const { status, data } = await window.electron.ipcRenderer.invoke('getLoginStatus')
 
+        // console.log(status, data)
         if (status === -1) {
           clearTimeout(onLoginTimer)
           onLoginTimer = null
@@ -230,6 +237,15 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    }
+    /**
+     * @description: 停止刷新登录状态
+     * @return {*}
+     */
+    function stopTime() {
+      // console.log('onLoginTimer', onLoginTimer)
+      clearTimeout(onLoginTimer)
+      onLoginTimer = null
     }
 
     //
@@ -427,7 +443,8 @@ export default {
       getQrocde,
       qrcodeValue,
       qrcodeModalVisible,
-      loginStatus
+      loginStatus,
+      stopTime
     }
   }
 }
