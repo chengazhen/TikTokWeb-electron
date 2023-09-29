@@ -19,8 +19,7 @@
   },
   "dependencies": {
     "@electron-toolkit/preload": "^2.0.0",
-    "@electron-toolkit/utils": "^2.0.0",
-    "sweetalert2": "^11.7.28"
+    "@electron-toolkit/utils": "^2.0.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.1",
@@ -31,8 +30,6 @@
     "axios": "^1.5.1",
     "electron": "^25.6.0",
     "electron-builder": "^24.6.3",
-    "electron-json-storage": "^4.6.0",
-    "electron-store": "^8.1.0",
     "electron-vite": "^1.0.27",
     "eslint": "^8.47.0",
     "eslint-plugin-vue": "^9.17.0",
