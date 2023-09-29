@@ -20,7 +20,6 @@ function createWindow() {
     }
   })
 
-  register(ipcMain)
   // console.log(storage.getDefaultDataPath())
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -48,6 +47,8 @@ function createWindow() {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
+
+  register(ipcMain)
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
