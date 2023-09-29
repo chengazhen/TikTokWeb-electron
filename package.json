@@ -1,10 +1,10 @@
 {
   "name": "tiktokweb-electron",
   "version": "1.0.0",
-  "description": "An Electron application with Vue",
+  "description": "基于 electron 实现的桌面端, 可以下载去水印抖音视频；",
   "main": "./out/main/index.js",
   "author": "example.com",
-  "homepage": "https://www.electronjs.org",
+  "homepage": "https://github.com/Journey98/TikTokWeb-electron",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
