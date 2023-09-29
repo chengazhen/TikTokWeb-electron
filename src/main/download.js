@@ -43,7 +43,9 @@ export function GetInfo(item_ids, dycookie, isScanCode = false) {
     .then((response) => {
       // 如果response.data为空或未定义
       if (!response.data) {
-        return { work: false }
+        return {
+          status: -1
+        }
       }
 
       // 校验响应状态
@@ -63,16 +65,19 @@ export function GetInfo(item_ids, dycookie, isScanCode = false) {
         const cleanedDesc = desc.replaceAll(invalid, repWith)
 
         return {
-          url,
-          desc: cleanedDesc,
-          music: music.play_url.uri,
-          m_title: music.title,
-          nickname: author.nickname,
-          unique_id,
-          video_id: aweme_id,
-          userhome,
-          type,
-          images
+          status: 0,
+          data: {
+            url,
+            desc: cleanedDesc,
+            music: music.play_url.uri,
+            m_title: music.title,
+            nickname: author.nickname,
+            unique_id,
+            video_id: aweme_id,
+            userhome,
+            type,
+            images
+          }
         }
       } else {
         // 如果响应状态码不为0，抛出错误

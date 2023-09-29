@@ -17,7 +17,7 @@
             <NButton type="warning" class="mr-1" @click="showModal = true">
               手动设置Cookie
             </NButton>
-            <NButton type="warning" class="mr-1" @click="getQrocde"> 扫码设置Cookie </NButton>
+            <!-- <NButton type="warning" class="mr-1" @click="getQrocde"> 扫码设置Cookie </NButton> -->
             <NButton type="success" class="mr-1" :disabled="!videoData.url" @click="handleSave">
               下载视频
             </NButton>
@@ -335,34 +335,38 @@ export default {
      * @return {*}
      */
     async function parseVideo() {
-      const scanToken = jsCookie.get('scan_token')
-      console.log(scanToken)
-      if (!scanToken && !validate()) {
+      if (!validate()) {
         return
       }
 
-      analysisLoading.value = true
       try {
         // 向主进程请求数据
+        analysisLoading.value = true
         const id = await window.electron.ipcRenderer.invoke(
-          'fetch-data',
+          'GetID',
           videoUrl.value.match(URL_REGEXP)[0]
         )
 
         if (id) {
-          const res = await window.electron.ipcRenderer.invoke(
-            'GetInfo',
-            id,
-            jsCookie.get('scan_token') ? jsCookie.get('scan_token') : getCookie(),
-            Boolean(scanToken)
-          )
-          player.switchURL(res.url)
-          Object.assign(videoData, res)
+          GetInfo(id)
         }
       } catch (error) {
         console.log(error)
       } finally {
         analysisLoading.value = false
+      }
+
+      async function GetInfo(id) {
+        const { status, data } = await window.electron.ipcRenderer.invoke(
+          'GetInfo',
+          id,
+          JSON.stringify(cookie)
+        )
+        if (status === -1) {
+          return message.error('解析失败')
+        }
+        player.switchURL(data.url)
+        Object.assign(videoData, data)
       }
 
       function validate() {
