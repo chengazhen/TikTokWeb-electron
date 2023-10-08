@@ -11,7 +11,7 @@ electron-vite + vue + naive-ui
 
 ## 下载
 
-[release](https://github.com/Journey98/TikTokWeb-electron/releases/tag/1.0.0)
+[release](https://github.com/Journey98/TikTokWeb-electron/releases/tag)
 
 ## 打包 开发
 
